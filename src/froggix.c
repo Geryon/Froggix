@@ -25,7 +25,7 @@
 /* 
  * Set some basic definitions
  */
-#define VERSION "$Id: froggix.c,v 1.2 2009-03-28 03:17:09 nick Exp $"
+#define VERSION "$Id: froggix.c,v 1.1 2009-03-28 03:48:45 nick Exp $"
 #define TITLE "Froggix"
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
