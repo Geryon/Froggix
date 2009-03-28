@@ -1,6 +1,15 @@
 #!/bin/sh
-#$Id: autogen.sh,v 1.2 2009-03-27 19:50:44 nick Exp $
+# $Id: autogen.sh,v 1.3 2009-03-28 03:52:29 nick Exp $
 
+# Remove any previously created cache files
+test -w config.cache && rm config.cache
+test -w config.cross.cache && rm config.cross.cache
+
+# Regenerate configuration files
 aclocal
-automake --foreign --add-missing
+automake --foreign
 autoconf
+
+# Run configure for this platform
+#./configure $*
+echo "Now you are ready to run ./configure"
