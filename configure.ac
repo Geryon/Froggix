@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-# $Id: configure.ac,v 1.2 2009-03-28 03:59:07 nick Exp $
+# $Id: configure.ac,v 1.3 2009-03-28 04:18:01 nick Exp $
 AC_INIT(README)
 
 # Setup for automake
@@ -55,23 +55,38 @@ CFLAGS="$CFLAGS $SDL_CFLAGS"
 CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
+# Check for SDL_image library
+AC_CHECK_LIB(SDL_image, IMG_LoadPNG_RW, , AC_MSG_ERROR([
+*** Unable to find SDL_image libary with PNG support
+(http://www.libsdl.org/projects/SDL_image/)
+]))
+
+# Check for SDL_image library
+AC_CHECK_LIB(SDL_ttf, TTF_OpenFont, , AC_MSG_ERROR([
+*** Unable to find SDL_ttf libary 
+(http://www.libsdl.org/projects/SDL_image/)
+]))
+
+
+### No need for OpenGL right now
 # Check for OpenGL
-AC_MSG_CHECKING(for OpenGL support)
-HAVE_OPENGL=no
-AC_TRY_COMPILE([
+#AC_MSG_CHECKING(for OpenGL support)
+#HAVE_OPENGL=no
+#AC_TRY_COMPILE([
  #include <GL/gl.h>
-],[
-],[
-HAVE_OPENGL=yes
-])
-AC_MSG_RESULT($HAVE_OPENGL)
-if test x$HAVE_OPENGL = xyes; then
-    CFLAGS="$CFLAGS -DHAVE_OPENGL"
-    GL_LIBS="$SYS_GL_LIBS"
-else
-    GL_LIBS=""
-fi
-AC_SUBST(GL_LIBS)
+#],[
+#],[
+#HAVE_OPENGL=yes
+#])
+#AC_MSG_RESULT($HAVE_OPENGL)
+#if test x$HAVE_OPENGL = xyes; then
+#    CFLAGS="$CFLAGS -DHAVE_OPENGL"
+#    GL_LIBS="$SYS_GL_LIBS"
+#else
+#    GL_LIBS=""
+#fi
+#AC_SUBST(GL_LIBS)
+### End of OpenGL
 
 # Check for standard C++ library
 AC_CHECK_LIB(stdc++, main)
