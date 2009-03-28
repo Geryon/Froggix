@@ -25,7 +25,7 @@
 /* 
  * Set some basic definitions
  */
-#define VERSION "$Id: froggix.c,v 1.1 2009-03-27 19:47:27 nick Exp $"
+#define VERSION "$Id: froggix.c,v 1.2 2009-03-28 03:17:09 nick Exp $"
 #define TITLE "Froggix"
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
@@ -802,12 +802,13 @@ int collisionRow ( void ) {
 	/* Check collision with cars */
 	if ( frogger.currentRow < 6 ) {
 		for( i = 0; i < MAX_VEHICLES; i++ ) {
-			if ( level < vehicle[i].level ) return 0;
-			int length = ( vehicle[i].row == 5 ) ? FRAME * 2 : FRAME; /* Trucks */
-			if ( collideFrogger( vehicle[i].placement[X],
-					     vehicle[i].placement[Y], FRAME,
-					     length ) ) {
-				return 1;
+			if ( level >= vehicle[i].level ) {
+				int length = ( vehicle[i].row == 5 ) ? FRAME * 2 : FRAME; /* Trucks */
+				if ( collideFrogger( vehicle[i].placement[X],
+						     vehicle[i].placement[Y], FRAME,
+						     length ) ) {
+					return 1;
+				}
 			}
 		}
 		return 0;
