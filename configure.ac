@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-# $Id: configure.ac,v 1.3 2009-03-28 04:18:01 nick Exp $
+# $Id: configure.ac,v 1.4 2009-03-31 02:29:00 nick Exp $
 AC_INIT(README)
 
 # Setup for automake
@@ -61,9 +61,15 @@ AC_CHECK_LIB(SDL_image, IMG_LoadPNG_RW, , AC_MSG_ERROR([
 (http://www.libsdl.org/projects/SDL_image/)
 ]))
 
-# Check for SDL_image library
+# Check for SDL_ttf library
 AC_CHECK_LIB(SDL_ttf, TTF_OpenFont, , AC_MSG_ERROR([
 *** Unable to find SDL_ttf libary 
+(http://www.libsdl.org/projects/SDL_image/)
+]))
+
+# Check for SDL_mixer library
+AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio, , AC_MSG_ERROR([
+*** Unable to find SDL_mixer libary 
 (http://www.libsdl.org/projects/SDL_image/)
 ]))
 
