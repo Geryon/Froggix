@@ -25,7 +25,7 @@
 /* 
  * Set some basic definitions
  */
-#define VERSION "$Id: froggix.c,v 1.1 2009-03-28 03:48:45 nick Exp $"
+#define VERSION "$Id: froggix.c,v 1.2 2009-04-03 02:48:21 nick Exp $"
 #define TITLE "Froggix"
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
@@ -331,6 +331,7 @@ int loadMedia( void ) {
  	 * Load frogger's textures and sounds
  	 */
 	gfx = IMG_Load( "images/frogger.png" );
+		frogger.riding = FALSE;
 
 	if ( gfx == NULL ) {
 		fprintf( stderr, "Error: 'images/frogger.bmp' could not be open: %s\n", SDL_GetError( ) );
@@ -493,9 +494,8 @@ int keyEvents( SDL_Event event ) {
 }
 
 int updateGameState( void ) {
-/*
-	printf( "D: Updating game state\n" );
-*/
+	int i;
+
 	if ( ! drawBG ) configGameScreen( );
 
 	if ( lives <= 0 ) {
@@ -507,6 +507,11 @@ int updateGameState( void ) {
 			playing = 0;
 			lives   = 0;
 			level   = 0;
+			score   = 0;
+			givenFreeFrog = 0;
+			drawBG  = 0;
+			for ( i = 0; i < MAX_GOALS; i++ ) { goals[i].occupied = 0; }
+			
 		}
 		return 500;
 	}
@@ -753,6 +758,7 @@ void drawGameScreen( void ) {
 	drawVehicles( );
 
 	if ( frogger.alive == FALSE ) {
+		frogger.riding = FALSE;
 		if ( ! drawDeathSequence( frogger.deathType ) ) {
 			lives--;
 			if ( lives < 0 ) { drawGameOver( ); }
