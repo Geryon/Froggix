@@ -25,7 +25,7 @@
 /* 
  * Set some basic definitions
  */
-#define VERSION "$Id: froggix.c,v 1.2 2009-04-03 02:48:21 nick Exp $"
+#define VER "$Id: froggix.c,v 1.3 2009-04-07 03:51:53 nick Exp $"
 #define TITLE "Froggix"
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
@@ -67,6 +67,8 @@
 #define TIMER_SIZE 150
 #define TIMER_COLOR 32, 211, 0
 #define TIMER_LOW_COLOR 255, 0, 0
+#define FLY_MAX_TIME 50
+#define GATOR_MAX_TIME 60
 
 /* baddies */
 #define VEHICLE 0
@@ -184,6 +186,7 @@ void beginGame( void );
 int loadMedia( void );
 int heartbeat( void );
 int updateGameState( void );
+int checkFly( void );
 void configGameScreen( void );
 void drawGameScreen( void );
 void drawBackground( void );
@@ -219,6 +222,7 @@ void drawImage(SDL_Surface *srcimg, int sx, int sy, int sw, int sh, SDL_Surface 
 void playSound( Mix_Chunk *sound );
 void setFullScreenMode( void );
 
+int flyTimer = 0;
 int level = 0;
 int playing = 0;
 int lives = 0;
@@ -453,10 +457,12 @@ int keyEvents( SDL_Event event ) {
 					default:
 						break;
 				}
+/* Uncomment for positioning debug information
 				printf( "x,y,d => %i,%i,%i,%i\n", frogger.placement[X],
 							       frogger.placement[Y],
 							       frogger.direction,
 							       frogger.currentRow );
+*/
 			}
 			/* Game over man, game over! */
 			if ( ! lives ) {
@@ -704,6 +710,10 @@ void configGameScreen( void ) {
 	rightBorderRect.w = SCREEN_WIDTH - RIGHT_SIDE;
 	rightBorderRect.h = SCREEN_HEIGHT;
 
+	/*
+ 	 *  We reset the flyTimer since this may not be the first game played
+ 	 */
+	flyTimer = 0;
 
 	/* 
  	 * Draw frogger in starting position 
@@ -747,6 +757,7 @@ void drawGameScreen( void ) {
 	/*
  	 * Update and draw everthing else
  	 */
+	checkFly( );
 	drawImage( background, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen, 0, 0, 255 );
 	drawScore( 0, score );
 	drawScore( 1, hScore );
@@ -794,6 +805,39 @@ void drawBackground( void ) {
  */
 int getRowPixel ( int row ) {
 	return ROW_BASE - ( row * HOP_DISTANCE );
+}
+
+/*
+ * Check our fly timers to determine if we need to display or
+ * remove a fly from the goal area
+ */
+int checkFly ( void ) {
+	int i;
+
+	for ( i = 0; i < MAX_GOALS; i++ ) {
+		if ( goals[i].fly ) {
+			goals[i].fly++;
+			if ( goals[i].fly > FLY_MAX_TIME ) {
+				goals[i].fly = 0;
+				flyTimer = 0;
+			}
+
+			return 0;
+		}
+	}
+
+	flyTimer++;
+
+	if ( flyTimer > ( FLY_MAX_TIME ) ) {
+		int randGoal = ( ( int ) timeLeft % 10 );
+		if ( ( goals[randGoal].gator == 0 ) &&
+		     ( goals[randGoal].occupied == 0 ) )  {
+			printf( "Displaying fly in goal %i\n", randGoal );
+			goals[randGoal].fly = 1;
+		}
+	}
+
+	return 0;
 }
 
 /*
@@ -853,6 +897,11 @@ int collisionRow ( void ) {
 			if ( collideFrogger( goals[i].x, goals[i].y, goals[i].w, goals[i].h ) ) {
 				if ( goals[i].occupied ) return 1;
 				goals[i].occupied++;
+				if ( goals[i].fly ) {
+					goals[i].fly = 0;
+					flyTimer = 0;
+					score += SCORE_FLY;
+				}
 				/* playSound( s_goal ); */
 				score += SCORE_GOAL;
 				score += ( ( int ) ( timeLeft / 10 ) ) * 10;
@@ -1192,7 +1241,7 @@ void drawNumbers( int num, int x, int y ) {
 void drawGoals( void ) {
 	int drawDebugRect = 0;
 	int i;
-	
+
 	for ( i = 0; i < MAX_GOALS; i++ ) {
 		if ( drawDebugRect ) {
 			SDL_Rect d;
@@ -1207,6 +1256,10 @@ void drawGoals( void ) {
 		if ( goals[i].occupied ) 
 			drawImage( gfx, FRAME * 15, 0, FRAME, FRAME, 
 				   screen, goals[i].x + 13, goals[i].y + 5, 255 );
+		if( goals[i].fly ) {
+			drawImage( gfx, FRAME * 16, 0, FRAME, FRAME, 
+				   screen, goals[i].x + 13, goals[i].y + 5, 255 );
+		}
 	}
 }
 
