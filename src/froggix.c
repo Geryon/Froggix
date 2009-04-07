@@ -25,7 +25,7 @@
 /* 
  * Set some basic definitions
  */
-#define VER "$Id: froggix.c,v 1.3 2009-04-07 03:51:53 nick Exp $"
+#define VER "$Id: froggix.c,v 1.4 2009-04-07 04:16:45 nick Exp $"
 #define TITLE "Froggix"
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
@@ -60,7 +60,7 @@
 #define SCORE_PINK 200
 #define SCORE_SECONDS 10
 #define HIGH_SCORE 4630
-#define SCORE_FREE_FROG 200
+#define SCORE_FREE_FROG 2000
 
 /* The green game timer */
 #define MAX_TIMER 350
@@ -68,7 +68,7 @@
 #define TIMER_COLOR 32, 211, 0
 #define TIMER_LOW_COLOR 255, 0, 0
 #define FLY_MAX_TIME 50
-#define GATOR_MAX_TIME 60
+#define GATOR_MAX_TIME 70
 
 /* baddies */
 #define VEHICLE 0
@@ -158,6 +158,7 @@ typedef struct {
 	int type;      /* SHORT, MEDIUM, or LONG */
 	int speed;     /* What speed does the log move at */
 	int hasPink;   // Is bonus frog riding
+	int isGator;   /* Are we a gator?  if > 1 we have an open mouth */
 
 	SDL_Rect src;
 } logObj;
@@ -186,7 +187,8 @@ void beginGame( void );
 int loadMedia( void );
 int heartbeat( void );
 int updateGameState( void );
-int checkFly( void );
+void checkFly( void );
+void checkGator( void );
 void configGameScreen( void );
 void drawGameScreen( void );
 void drawBackground( void );
@@ -223,6 +225,7 @@ void playSound( Mix_Chunk *sound );
 void setFullScreenMode( void );
 
 int flyTimer = 0;
+int gatorTimer = 0;
 int level = 0;
 int playing = 0;
 int lives = 0;
@@ -335,8 +338,6 @@ int loadMedia( void ) {
  	 * Load frogger's textures and sounds
  	 */
 	gfx = IMG_Load( "images/frogger.png" );
-		frogger.riding = FALSE;
-
 	if ( gfx == NULL ) {
 		fprintf( stderr, "Error: 'images/frogger.bmp' could not be open: %s\n", SDL_GetError( ) );
 		result--;
@@ -555,6 +556,7 @@ logObj setWood( int type, int speed, int row, int startX ) {
         tempWood.src.x = imgPixelSrc;
         tempWood.src.w = FRAME * tempWood.type;
         tempWood.src.h = FRAME;
+	tempWood.isGator = 0;
 
 	return tempWood;
 }
@@ -758,6 +760,7 @@ void drawGameScreen( void ) {
  	 * Update and draw everthing else
  	 */
 	checkFly( );
+	checkGator( );
 	drawImage( background, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen, 0, 0, 255 );
 	drawScore( 0, score );
 	drawScore( 1, hScore );
@@ -811,7 +814,7 @@ int getRowPixel ( int row ) {
  * Check our fly timers to determine if we need to display or
  * remove a fly from the goal area
  */
-int checkFly ( void ) {
+void checkFly ( void ) {
 	int i;
 
 	for ( i = 0; i < MAX_GOALS; i++ ) {
@@ -822,7 +825,7 @@ int checkFly ( void ) {
 				flyTimer = 0;
 			}
 
-			return 0;
+			return;
 		}
 	}
 
@@ -837,7 +840,40 @@ int checkFly ( void ) {
 		}
 	}
 
-	return 0;
+	return;
+}
+
+/*
+ * Check our gator timers.  Similiar to fly timers above, however, the gator
+ * has an extra stage as it enters in to the goal area.
+ */
+void checkGator ( void ) {
+	int i;
+
+	for( i = 0; i < MAX_GOALS; i++ ) {
+		if ( goals[i].gator ) {
+			goals[i].gator++;
+			if ( goals[i].gator > GATOR_MAX_TIME ) {
+				goals[i].gator = 0;
+				gatorTimer = 0;
+			}	
+	
+			return;
+		}
+	}
+
+	gatorTimer++;
+
+	if ( gatorTimer > GATOR_MAX_TIME ) {
+		int randGoal = ( ( int ) ( timeLeft * 2 ) % 10 );
+		if ( ( goals[randGoal].fly == 0 ) &&
+		     ( goals[randGoal].occupied == 0 ) )  {
+			printf( "Displaying gator in goal %i\n", randGoal );
+			goals[randGoal].gator = 1;
+		}	
+	}
+
+	return;
 }
 
 /*
@@ -1260,6 +1296,15 @@ void drawGoals( void ) {
 			drawImage( gfx, FRAME * 16, 0, FRAME, FRAME, 
 				   screen, goals[i].x + 13, goals[i].y + 5, 255 );
 		}
+		if( goals[i].gator ) {
+			int frame = 17;
+
+			if ( goals[i].gator > ( ( int ) GATOR_MAX_TIME / 2 ) )
+				frame++;
+			
+			drawImage( gfx, FRAME * frame, 0, FRAME, FRAME, 
+				   screen, goals[i].x + 13, goals[i].y + 5, 255 );
+		}		
 	}
 }
 
