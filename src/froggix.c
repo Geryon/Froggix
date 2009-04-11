@@ -25,7 +25,7 @@
 /* 
  * Set some basic definitions
  */
-#define VER "$Id: froggix.c,v 1.4 2009-04-07 04:16:45 nick Exp $"
+#define VER "$Id: froggix.c,v 1.5 2009-04-11 13:01:54 nick Exp $"
 #define TITLE "Froggix"
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
@@ -1063,36 +1063,29 @@ void froggerReset ( void ) {
  * algorithm for calculating the distance and time
  */
 void moveFrogger( void ) {
-	int currentFrame = 0;
 	int x = 0;
 	int y = 0;
 	int h = FRAME;
 	int w = FRAME;
-	int frameLow  = HOP_SPEED / 3;
-	int frameHigh = frameLow * 2;
-
-	/* Determine which frame of frogger to display */
-	if ( ( frogger.hopCount >= frameLow ) && ( frogger.hopCount <= frameHigh ) ) 
-		currentFrame = FRAME;
 	
 	frogger.oldPlacement[Y] = frogger.placement[Y];
 	frogger.oldPlacement[X] = frogger.placement[X];
 
 	switch( frogger.direction ) {
 		case UP:
-			x = currentFrame;
+			x = FRAME;
 			frogger.placement[Y] -= ( HOP_DISTANCE / HOP_SPEED );
 			break;
 		case DOWN:
-			x = currentFrame + ( 4 * FRAME );
+			x = ( 5 * FRAME );
 			frogger.placement[Y] += ( HOP_DISTANCE / HOP_SPEED );
 			break;
 		case LEFT:
-			x = currentFrame + ( 6 * FRAME );
+			x = ( 7 * FRAME );
 			frogger.placement[X] -= ( HOP_DISTANCE / HOP_SPEED );
 			break;
 		case RIGHT:
-			x = currentFrame + ( 2 * FRAME );
+			x = ( 3 * FRAME );
 			frogger.placement[X] += ( HOP_DISTANCE / HOP_SPEED );
 			break;	
 	}
@@ -1122,6 +1115,7 @@ void moveFrogger( void ) {
 		frogger.direction = FALSE;
 		score += SCORE_HOP;
 		lives += freeFrog( score );
+		frogger.src.x -= FRAME;
 	}
 }
 
