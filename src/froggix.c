@@ -25,7 +25,7 @@
 /* 
  * Set some basic definitions
  */
-#define VER "$Id: froggix.c,v 1.5 2009-04-11 13:01:54 nick Exp $"
+#define VER "$Id: froggix.c,v 1.6 2009-04-22 03:54:22 nick Exp $"
 #define TITLE "Froggix"
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
@@ -1287,16 +1287,17 @@ void drawGoals( void ) {
 			drawImage( gfx, FRAME * 15, 0, FRAME, FRAME, 
 				   screen, goals[i].x + 13, goals[i].y + 5, 255 );
 		if( goals[i].fly ) {
-			drawImage( gfx, FRAME * 16, 0, FRAME, FRAME, 
+			drawImage( gfx, FRAME * 17, 0, FRAME, FRAME, 
 				   screen, goals[i].x + 13, goals[i].y + 5, 255 );
 		}
 		if( goals[i].gator ) {
-			int frame = 17;
+			int frame = 18;
+			int diff = 10;
 
 			if ( goals[i].gator > ( ( int ) GATOR_MAX_TIME / 2 ) )
-				frame++;
+				diff = 0;
 			
-			drawImage( gfx, FRAME * frame, 0, FRAME, FRAME, 
+			drawImage( gfx, FRAME * frame + diff, 0, FRAME, FRAME, 
 				   screen, goals[i].x + 13, goals[i].y + 5, 255 );
 		}		
 	}
